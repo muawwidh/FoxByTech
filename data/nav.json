@@ -1,0 +1,26 @@
+[
+  {
+      "name": "Smart Trash Can",
+      "image": "img/trashbin.jpg",
+      "brand": "foxbytech",
+      "price": "AED 399.00"
+  },
+  {
+      "name": "Ambient Splice Light",
+      "image": "img/spliceLight.jpg",
+      "brand": "foxbytech",
+      "price": "AED 129.00"
+  },
+  {
+      "name": "Adjustable Sit Stand Desk",
+      "image": "img/AdjustableDesk.jpg",
+      "brand": "foxbytech",
+      "price": "AED 849.99"
+  },
+  {
+      "name": "Triangle Lights",
+      "image": "img/TriangleLight.jpg",
+      "brand": "foxbytech",
+      "price": "AED 299.99"
+  }
+]
