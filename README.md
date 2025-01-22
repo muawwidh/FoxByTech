@@ -76,13 +76,13 @@ Welcome to **FoxByTech**, an advanced e-commerce platform designed to deliver a 
 ## Demo  
 
 ### Registration Page  
-![Registration Screenshot](./screenshots/register-page.png)  
+![Registration Screenshot](./img/register-page.png)  
 
 ### Login Page  
-![Login Screenshot](./screenshots/login-page.png)  
+![Login Screenshot](./img/login-page.png)  
 
 ### Shopping Cart  
-![Cart Screenshot](./screenshots/cart-page.png)  
+![Cart Screenshot](./img/cart-page.png)  
 
 ---
 
@@ -107,7 +107,7 @@ Feel free to fork this repository and submit a pull request.
 ## Author  
 
 - **Muawwidh**  
-- Full-stack developer experienced in building scalable web applications with PHP, MySQL, and modern front-end technologies.  
+- Experienced in PHP, MySQL, and full-stack development. Passionate about creating user-friendly and efficient web solutions.
 
 ---
 
