@@ -1,23 +1,57 @@
-<?php 
-   session_start();
+<?php
+session_start();
+require_once "config/db.php";
+
+$error = "";
+
+if (isset($_SESSION['valid']) && isset($_SESSION['id'])) {
+    header("Location: index.php");
+    exit();
+}
+
+if (isset($_POST['submit'])) {
+    $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
+    $password = $_POST['password'];
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = "Please enter a valid email address.";
+    } else {
+        $stmt = $con->prepare("SELECT Id, Username, Email, Password FROM users WHERE Email=? LIMIT 1");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result && $result->num_rows === 1) {
+            $user = $result->fetch_assoc();
+
+            if (password_verify($password, $user['Password'])) {
+                $_SESSION['valid'] = true;
+                $_SESSION['username'] = $user['Username'];
+                $_SESSION['email'] = $user['Email'];
+                $_SESSION['id'] = (int) $user['Id'];
+
+                header("Location: index.php");
+                exit();
+            }
+        }
+
+        $error = "Incorrect email or password.";
+    }
+}
 ?>
 <!DOCTYPE html>
-<html lang ="en">
+<html lang="en">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width , initial-scale=1.0">
-    <title>Shopping Cart</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/> -->
     <script src="https://kit.fontawesome.com/33ddd39d23.js" crossorigin="anonymous"></script>
 </head>
-
 <body>
-    
     <section id="header">
         <a href="index.php"> <img src="img/logo2.jpeg" alt="FoxbyTech Logo"></a>
-        
         <div>
             <ul id="navbar">
                 <li><a href="index.php">Home</a></li>
@@ -33,79 +67,34 @@
             <i id="bar" class="fas fa-outdent"></i>
         </div>
     </section>
-    <!-- Signin Section HTML code -->
-    <section id="signin">
+    <section id="signup">
         <div class="container">
-            <div class="form-box-signin">
-
-            <?php
-
-
-// Connecting to the database
-$con = mysqli_connect("localhost", "root", "", "muawwidh") or die("Couldn't connect");
-
-if(isset($_POST['submit'])){
-    // Validate and sanitize user inputs
-    $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
-    $password = $_POST['password'];
-
-    // Check if email is in valid format
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        echo "<div class='message'>
-                <h5>Invalid email format</h5>
-              </div>";
-        echo "<a href='user.php'><button class='btn-custom'>Go Back</button>";
-        exit;
-    }
-
-    // Prepare and execute the query using prepared statement
-    $stmt = $con->prepare("SELECT * FROM users WHERE Email=? AND Password=?");
-    $stmt->bind_param("ss", $email, $password);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
-
-    if ($row) {
-        // User authentication successful, set session variables
-        $_SESSION['valid'] = $row['Email'];
-        $_SESSION['username'] = $row['Username'];
-        $_SESSION['id'] = $row['Id'];
-        header("Location: index.php");
-    } else {
-        // Authentication failed, display error message
-        echo "<div class='message'>
-                <h5>Wrong Username or Password</h5>
-              </div>";
-        echo "<a href='user.php'><button class='btn-custom'>Go Back</button>";
-        exit;
-    }
-}
-?>
-
+            <div class="form-box-signup">
                 <h1 id="title">Sign In</h1>
-                <form id="signinForm" method="post" action="">
+                <?php if ($error !== "") { ?>
+                    <div class="message"><h5><?php echo htmlspecialchars($error); ?></h5></div><br>
+                <?php } ?>
+                <form id="signupForm" method="post" action="">
                     <div class="input-group">
-                        <div class="input-field" id="usernameField">
-                            <i class="fa-solid fa-user"></i>
-                            <input type="text" placeholder="Email" name="email" id="username" autocomplete="off" required>
+                        <div class="input-field" id="mailID">
+                            <i class="fa-solid fa-envelope"></i>
+                            <input type="email" placeholder="Email" name="email" id="email" autocomplete="off" required>
                         </div>
-                        <div class="input-field" id="passwordField">
+                        <div class="input-field" id="firstPass">
                             <i class="fa-solid fa-lock"></i>
                             <input type="password" placeholder="Password" name="password" id="password" autocomplete="off" required>
                         </div>
-                        <div class="btn-field"> 
-                             <button type="submit" name="submit" id="signupBtn">Sign Up</button> 
+                        <div class="btn-field">
+                            <button type="submit" name="submit" id="signinBtn">Sign In</button>
                         </div>
-                    </div>
-                    <div class="links">
-                        Don't have account? <a href="register.php">Sign Up Now</a>
+                        <div class="links">
+                            Not a member? <a href="register.php">Sign Up</a>
+                        </div>
                     </div>
                 </form>
             </div>
-            <?php ?>
         </div>
     </section>
-
     <script src="script.js"></script>
 </body>
 </html>

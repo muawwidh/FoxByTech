@@ -1,10 +1,37 @@
-    <?php 
+<?php 
     session_start();
 
-    $con = mysqli_connect("localhost", "root", "", "muawwidh") or die("Couldn't connect");
-    if(!isset($_SESSION['valid'])){
-        header("Location: index.php");
+    require_once "config/db.php";
+    if(!isset($_SESSION['valid']) || !isset($_SESSION['id'])){
+        header("Location: user.php");
+        exit();
     }
+    $id = $_SESSION['id'];
+
+   if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cart_action']) && $_POST['cart_action'] === 'add') {
+    $product_id = (int) $_POST['product_id'];
+    $quantity = max(1, (int) $_POST['quantity']);
+
+    $stmt = $con->prepare("SELECT id FROM products WHERE id=? LIMIT 1");
+    $stmt->bind_param("i", $product_id);
+    $stmt->execute();
+    $product_result = $stmt->get_result();
+
+    if ($product_result && $product_result->num_rows === 1) {
+        if (!isset($_SESSION['cart'])) {
+            $_SESSION['cart'] = [];
+        }
+
+        if (!isset($_SESSION['cart'][$product_id])) {
+            $_SESSION['cart'][$product_id] = 0;
+        }
+
+        $_SESSION['cart'][$product_id] += $quantity;
+    }
+
+    header("Location: cart.php?added=1");
+    exit();
+   }
     $products_query = mysqli_query($con, "SELECT * FROM products WHERE category = 'lights'");
     ?>
 
@@ -25,8 +52,10 @@
     <body>
     <?php 
                 
-                $id = $_SESSION['id'];
-                $query = mysqli_query($con,"SELECT*FROM users WHERE Id=$id");
+                $stmt = $con->prepare("SELECT * FROM users WHERE Id=?");
+                $stmt->bind_param("i", $id);
+                $stmt->execute();
+                $query = $stmt->get_result();
 
                 while($result = mysqli_fetch_assoc($query)){
                     $res_Uname = $result['Username'];
@@ -87,8 +116,12 @@
                 <div class="single-pro-details">
                     <h2><?php echo $product['name']; ?></h2>
                     <h4>AED <?php echo $product['price']; ?></h4>
-                    <input type="number" value="1">
-                    <button class="normal">Add to Cart</button>
+                    <form method="post" action="">
+                        <input type="hidden" name="cart_action" value="add">
+                        <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
+                        <input type="number" name="quantity" value="1" min="1">
+                        <button type="submit" class="normal">Add to Cart</button>
+                    </form>
                     <h4>Product Details</h4>
                     <span><?php echo $product['description']; ?></span>
                 </div>

@@ -1,10 +1,9 @@
 <?php
 session_start();
-
-$con = mysqli_connect("localhost", "root", "", "muawwidh") or die("Couldn't connect");
+require_once "config/db.php";
 
 // Check if session variable 'valid' is set and true
-if (isset($_SESSION['valid'])) {
+if (isset($_SESSION['valid']) && isset($_SESSION['id'])) {
     // Code block to fetch user information
     $id = $_SESSION['id'];
     $stmt = $con->prepare("SELECT Username, Email, Id FROM users WHERE Id=?");

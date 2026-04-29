@@ -1,9 +1,10 @@
 <?php 
    session_start();
 
-   $con = mysqli_connect("localhost", "root", "", "muawwidh") or die("Couldn't connect");
-   if(!isset($_SESSION['valid'])){
-    header("Location: index.php");
+   require_once "config/db.php";
+   if(!isset($_SESSION['valid']) || !isset($_SESSION['id'])){
+    header("Location: user.php");
+    exit();
    }
 
    if (isset($_POST['delete'])) {
@@ -37,7 +38,11 @@
                 <?php 
                 
                 $id = $_SESSION['id'];
-                $query = mysqli_query($con,"SELECT*FROM users WHERE Id=$id");
+
+                $stmt = $con->prepare("SELECT * FROM users WHERE Id=?");
+                $stmt->bind_param("i", $id);
+                $stmt->execute();
+                $query = $stmt->get_result();
 
                 while($result = mysqli_fetch_assoc($query)){
                     $res_Uname = $result['Username'];
